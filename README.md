@@ -4,6 +4,8 @@ A Rails 4 compatible queue with support for executing jobs in the future and ser
 
 ## Installation
 
+Make sure you've installed [redis](http://redis.io) on your machine.
+
 Add this line to your application's Gemfile:
 
 ~~~Ruby
@@ -13,7 +15,7 @@ gem 'afterparty'
 If you intend to use Rails 4, you must use the **jobs** branch.
 
 ~~~Ruby
-gem 'rails', '4.0.0.rc1', github: "rails/rails", branch: "jobs", tag: "v4.0.0.rc1"
+gem 'rails', github: "rails/rails", branch: "jobs", tag: "v4.0.0.rc1"
 ~~~
 
 If you want to use it with Rails 3.2, use the [rails-queue](https://github.com/probablywrong/rails-queue) gem.
@@ -54,6 +56,19 @@ Then add it to the queue at any time.
 Rails.queue << Job.new
 ~~~
 
+## Configuration
+
+You can specify 
+
+Label
+io.redis.redis-server
+ProgramArguments
+
+  /usr/local/bin/redis-server
+  /usr/local/etc/redis.conf
+
+RunAtLoad
+  
 
 
 
@@ -63,6 +78,8 @@ Rails.queue << Job.new
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Add a test in `spec/redis_queue_spec.rb`
+4. Make sure tests pass when you run `rake`
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
