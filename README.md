@@ -12,18 +12,6 @@ Add this line to your application's Gemfile:
 gem 'afterparty'
 ~~~
 
-If you intend to use Rails 4, you must use the **jobs** branch.
-
-~~~Ruby
-gem 'rails', github: "rails/rails", branch: "jobs", tag: "v4.0.0.rc1"
-~~~
-
-If you want to use it with Rails 3.2, use the [rails-queue](https://github.com/probablywrong/rails-queue) gem.
-
-~~~Ruby
-gem 'rails-queue'
-~~~
-
 And then execute:
 
     $ bundle
@@ -35,7 +23,7 @@ Or install it yourself as:
 In your desired application environment, like `application.rb`:
 
 ~~~Ruby
-Rails.queue = Afterparty::RedisQueue.new
+config.queue = Afterparty::RedisQueue.new
 ~~~
 
 ## Usage
@@ -58,16 +46,7 @@ Rails.queue << Job.new
 
 ## Configuration
 
-You can specify 
 
-Label
-io.redis.redis-server
-ProgramArguments
-
-  /usr/local/bin/redis-server
-  /usr/local/etc/redis.conf
-
-RunAtLoad
   
 
 
