@@ -20,6 +20,8 @@ module Afterparty
         @temp_namespace = nil
       end
     end
+    alias :<< :push
+    alias :eng :push
 
     def pop
       @mutex.synchronize do
