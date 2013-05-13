@@ -1,3 +1,4 @@
+require 'spec_helper'
 describe Afterparty::RedisQueue do
   before do
     require 'open-uri'
@@ -47,28 +48,16 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(6)
+    chill(7)
     complete.size.should eq(1)
   end
 
   it "doesn't execute the job synchronously when added" do
-    job = TestJob.new
-    job.execute_at = Time.now + 10
+    job = test_job 100
     t = Time.now
     @q.push(job)
     (Time.now - t).should <= 1
   end
-
-  # it "sorts jobs correctly" do
-  #   late_job = test_job 4
-  #   @q.push late_job
-  #   early_job = test_job
-  #   @q.push(early_job)
-  #   @q.jobs.should eq([early_job, late_job])
-  #   early_job2 = test_job
-  #   @q.push(early_job2)
-  #   @q.jobs.should eq([early_job, early_job2, late_job])
-  # end
 
   it "executes jobs in the right order" do
     late_job = test_job 60*10
