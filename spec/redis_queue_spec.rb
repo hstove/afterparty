@@ -66,7 +66,7 @@ describe Afterparty::RedisQueue do
     early_job = test_job
     @q.push(late_job)
     @q.push(early_job)
-    chill(1)
+    chill(3)
     complete.size.should eq(1)
     complete[0].execute_at.should be(nil)
   end
