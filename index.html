@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Afterparty by hstove</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Afterparty</h1>
+        <p>A Rails 4 compatible queue with support for executing jobs in the future and persistence with Redis.</p>
+
+        <p class="view"><a href="https://github.com/hstove/afterparty">View the Project on GitHub <small>hstove/afterparty</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/hstove/afterparty/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/hstove/afterparty/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/hstove/afterparty">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><a href="https://travis-ci.org/hstove/afterparty"><img src="https://travis-ci.org/hstove/afterparty.png?branch=master" alt="Build Status"></a></p>
+
+<h2>Installation</h2>
+
+<p>Make sure you've installed <a href="http://redis.io">redis</a> on your machine.</p>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<div class="highlight"><pre><span class="n">gem</span> <span class="s1">'afterparty'</span>
+</pre></div>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install afterparty
+</code></pre>
+
+<p>In your desired application environment, like <code>application.rb</code>:</p>
+
+<div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="ss">Afterparty</span><span class="p">:</span><span class="ss">:RedisQueue</span><span class="o">.</span><span class="n">new</span>
+</pre></div>
+
+<h2>Usage</h2>
+
+<p>A <code>job</code> is a ruby object with a <code>run</code> method.</p>
+
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Job</span>
+  <span class="k">def</span> <span class="nf">run</span>
+    <span class="nb">puts</span> <span class="s2">"Hello!"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Then add it to the queue at any time.</p>
+
+<div class="highlight"><pre><span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">queue</span> <span class="o">&lt;&lt;</span> <span class="no">Job</span><span class="o">.</span><span class="n">new</span>
+</pre></div>
+
+<p>If your job responds to an <code>execute_at</code> method, the queue will wait to process that job until the specified time.</p>
+
+<h2>Contributing</h2>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Add a test in <code>spec/redis_queue_spec.rb</code>
+</li>
+<li>Make sure tests pass when you run <code>rake</code>
+</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create new Pull Request</li>
+</ol>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/hstove">hstove</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-40884880-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
