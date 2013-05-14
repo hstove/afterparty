@@ -44,14 +44,7 @@ Then add it to the queue at any time.
 Rails.queue << Job.new
 ~~~
 
-## Configuration
-
-
-  
-
-
-
-
+If your job responds to an `execute_at` method, the queue will wait to process that job until the specified time.
 
 ## Contributing
 
