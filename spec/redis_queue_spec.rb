@@ -51,7 +51,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(25)
+    chill(50)
     complete.size.should eq(1)
   end
 
