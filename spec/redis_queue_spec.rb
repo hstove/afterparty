@@ -12,8 +12,8 @@ describe Afterparty::RedisQueue do
     @q.completed_jobs.clear
     @q.clear
     Afterparty.redis.quit
-    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 10).to_i
-    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 25).to_i
+    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 5).to_i
+    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 15).to_i
   end
 
   it "pushes nil without errors" do
@@ -50,10 +50,11 @@ describe Afterparty::RedisQueue do
 
   it "waits the correct amount of time to execute a job" do
     job = TestJob.new
-    job.execute_at = Time.now + 2
+    job.execute_at = Time.now + 5
     @q.push(job)
+    @q.jobs.size.should eq(1)
     chill(@slow_job_time)
-    complete.size.should eq(1)
+    @q.jobs.size.should eq(0)
   end
 
   it "doesn't execute the job synchronously when added" do
