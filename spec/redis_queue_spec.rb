@@ -12,6 +12,7 @@ describe Afterparty::RedisQueue do
     @q.completed_jobs.clear
     @q.clear
     Afterparty.redis.quit
+    @job_time = 10
   end
 
   it "pushes nil without errors" do
@@ -28,13 +29,13 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     @q.push(job)
     complete.size.should eq(0)
-    chill(5)
+    chill(@job_time)
     complete.size.should eq(1)
   end
 
   it "removes items from the queue after running them" do
     @q.push TestJob.new
-    chill(2)
+    chill(@job_time)
     @q.jobs.should_not include(@job)
   end
 
@@ -42,7 +43,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 200
     @q.push job
-    chill(5)
+    chill(@job_time)
     complete.size.should eq(0)
   end
 
@@ -50,7 +51,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(15)
+    chill(25)
     complete.size.should eq(1)
   end
 
@@ -66,7 +67,7 @@ describe Afterparty::RedisQueue do
     early_job = test_job
     @q.push(late_job)
     @q.push(early_job)
-    chill(3)
+    chill(@job_time)
     complete.size.should eq(1)
     complete[0].execute_at.should be(nil)
   end
