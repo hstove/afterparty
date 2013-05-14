@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hstove/afterparty.png?branch=master)](https://travis-ci.org/hstove/afterparty)
 
-A Rails 4 compatible queue with support for executing jobs in the future and serialization with Redis.
+A Rails 4 compatible queue with support for executing jobs in the future and persistence with Redis.
 
 ## Installation
 
@@ -43,7 +43,7 @@ end
 Then add it to the queue at any time.
 
 ~~~Ruby
-Rails.queue << Job.new
+Rails.configuration.queue << Job.new
 ~~~
 
 If your job responds to an `execute_at` method, the queue will wait to process that job until the specified time.

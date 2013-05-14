@@ -4,3 +4,6 @@ rvm:
   - 2.0.0
 services:
   - redis-server
+env:
+  - AFTERPARTY_JOB_TIME=15
+  - AFTERPARTY_SLOW_TIME=50
