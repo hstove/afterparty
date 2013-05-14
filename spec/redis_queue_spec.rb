@@ -12,8 +12,8 @@ describe Afterparty::RedisQueue do
     @q.completed_jobs.clear
     @q.clear
     Afterparty.redis.quit
-    @job_time = ENV['AFTERPARTY_JOB_TIME'] || 10
-    @slow_job_time = ENV['AFTERPARTY_SLOW_TIME'] || 25
+    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 10).to_i
+    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 25).to_i
   end
 
   it "pushes nil without errors" do
