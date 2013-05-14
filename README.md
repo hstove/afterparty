@@ -1,5 +1,7 @@
 # Afterparty
 
+[![Build Status](https://travis-ci.org/hstove/afterparty.png?branch=master)](https://travis-ci.org/hstove/afterparty)
+
 A Rails 4 compatible queue with support for executing jobs in the future and serialization with Redis.
 
 ## Installation

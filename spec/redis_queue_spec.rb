@@ -12,7 +12,8 @@ describe Afterparty::RedisQueue do
     @q.completed_jobs.clear
     @q.clear
     Afterparty.redis.quit
-    @job_time = 10
+    @job_time = ENV['AFTERPARTY_JOB_TIME'] || 10
+    @slow_job_time = ENV['AFTERPARTY_SLOW_TIME'] || 25
   end
 
   it "pushes nil without errors" do
@@ -51,7 +52,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(50)
+    chill(@slow_job_time)
     complete.size.should eq(1)
   end
 
