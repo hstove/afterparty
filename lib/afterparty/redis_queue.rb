@@ -3,9 +3,8 @@ module Afterparty
     attr_accessor :redis, :options, :temp_namespace, :consumer
     include Afterparty::QueueHelpers
 
-    def initialize redis=nil, options={}, consumer_options={}
+    def initialize options={}, consumer_options={}
       @consumer = ThreadedQueueConsumer.new(self, consumer_options).start
-      @redis = redis || Redis.new
       @options = options
       @options[:namespace] ||= "default"
       @options[:sleep] ||= 5

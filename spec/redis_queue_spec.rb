@@ -4,12 +4,14 @@ describe Afterparty::RedisQueue do
     require 'open-uri'
     uri = URI.parse("redis://localhost:6379")
     redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
-    @q = Afterparty::TestRedisQueue.new(redis, {sleep: 0.5})
+    Afterparty.redis = redis
+    @q = Afterparty::TestRedisQueue.new({sleep: 0.5})
   end
 
   before :each do
     @q.completed_jobs.clear
     @q.clear
+    Afterparty.redis.quit
   end
 
   it "pushes nil without errors" do
@@ -26,7 +28,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     @q.push(job)
     complete.size.should eq(0)
-    chill(1)
+    chill(3)
     complete.size.should eq(1)
   end
 
@@ -38,9 +40,9 @@ describe Afterparty::RedisQueue do
 
   it "doesn't execute jobs that execute in a while" do
     job = TestJob.new
-    job.execute_at = Time.now + 2
+    job.execute_at = Time.now + 200
     @q.push job
-    chill(1)
+    chill(3)
     complete.size.should eq(0)
   end
 
@@ -48,7 +50,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(7)
+    chill(8)
     complete.size.should eq(1)
   end
 

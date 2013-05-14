@@ -13,13 +13,13 @@ module Afterparty
     end
 
     def redis_call command, *args
-      result = @redis.send(command, redis_queue_name, *args)
+      result = Afterparty.redis.send(command, redis_queue_name, *args)
       @temp_namespace = nil
       result
     end
 
     def async_redis_call &block
-      @redis.pipelined &block
+      Afterparty.redis.pipelined &block
     end
 
     def jobs
@@ -46,6 +46,10 @@ module Afterparty
 
     def total_jobs_count
       redis_call(:zcount, "-inf", "+inf")
+    end
+
+    def redis
+      @@redis
     end
 
     private

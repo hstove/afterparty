@@ -3,7 +3,7 @@ module Afterparty
   class TestRedisQueue < RedisQueue
     attr_accessor :completed_jobs
     
-    def initialize redis=nil, opts={}, consumer_opts={}
+    def initialize opts={}, consumer_opts={}
       super
       @completed_jobs = []
       @exceptions = []
