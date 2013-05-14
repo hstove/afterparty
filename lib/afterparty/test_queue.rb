@@ -1,3 +1,4 @@
+require 'afterparty/redis_queue'
 module Afterparty
   class TestRedisQueue < RedisQueue
     attr_accessor :completed_jobs
