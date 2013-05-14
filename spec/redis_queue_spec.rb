@@ -28,13 +28,13 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     @q.push(job)
     complete.size.should eq(0)
-    chill(3)
+    chill(5)
     complete.size.should eq(1)
   end
 
   it "removes items from the queue after running them" do
     @q.push TestJob.new
-    chill(1)
+    chill(2)
     @q.jobs.should_not include(@job)
   end
 
@@ -42,7 +42,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 200
     @q.push job
-    chill(3)
+    chill(5)
     complete.size.should eq(0)
   end
 
@@ -50,7 +50,7 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 2
     @q.push(job)
-    chill(12)
+    chill(15)
     complete.size.should eq(1)
   end
 
