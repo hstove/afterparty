@@ -1,3 +1,3 @@
 module Afterparty
-  VERSION = "0.0.21"
+  VERSION = "0.0.3"
 end
