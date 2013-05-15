@@ -8,12 +8,16 @@ describe Afterparty::RedisQueue do
     @q = Afterparty::TestRedisQueue.new({sleep: 0.5})
   end
 
+  after do
+    @worker.stop
+  end
+
   before :each do
-    @q.completed_jobs.clear
+    @worker = Afterparty::Worker.new({sleep: 0.5})
+    @worker.consume
     @q.clear
-    Afterparty.redis.quit
-    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 5).to_i
-    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 15).to_i
+    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 3).to_i
+    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 10).to_i
   end
 
   it "pushes nil without errors" do
@@ -29,15 +33,15 @@ describe Afterparty::RedisQueue do
   it "executes the job" do
     job = TestJob.new
     @q.push(job)
-    complete.size.should eq(0)
+    @q.jobs.size.should eq(1)
     chill(@job_time)
-    complete.size.should eq(1)
+    @q.jobs.size.should eq(0)
   end
 
   it "removes items from the queue after running them" do
     @q.push TestJob.new
     chill(@job_time)
-    @q.jobs.should_not include(@job)
+    @q.jobs.size.should == 0
   end
 
   it "doesn't execute jobs that execute in a while" do
@@ -45,7 +49,7 @@ describe Afterparty::RedisQueue do
     job.execute_at = Time.now + 200
     @q.push job
     chill(@job_time)
-    complete.size.should eq(0)
+    @q.jobs.size.should eq(1)
   end
 
   it "waits the correct amount of time to execute a job" do
@@ -57,7 +61,7 @@ describe Afterparty::RedisQueue do
     @q.jobs.size.should eq(0)
   end
 
-  it "doesn't execute the job synchronously when added" do
+  it "doesn't wait and execute the job synchronously when added" do
     job = test_job 100
     t = Time.now
     @q.push(job)
@@ -70,8 +74,8 @@ describe Afterparty::RedisQueue do
     @q.push(late_job)
     @q.push(early_job)
     chill(@job_time)
-    complete.size.should eq(1)
-    complete[0].execute_at.should be(nil)
+    (jobs = @q.jobs).size.should eq(1)
+    jobs[0].execute_at.should_not be(nil)
   end
 
   class ErrorJob

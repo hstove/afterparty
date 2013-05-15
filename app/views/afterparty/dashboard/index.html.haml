@@ -1,0 +1,66 @@
+!!!
+%html
+
+  %head
+    %title== #{Rails.application.class.parent_name} Job Queue
+    %meta{"http-equiv"=>"Content-Type", :content=>"text/html; charset=utf-8"}
+    / %meta{name: "viewport", content: "width=device-width, initial-scale=1.0"}
+    = stylesheet_link_tag "afterparty"
+    = javascript_include_tag "jquery", "afterparty"
+    = csrf_meta_tag
+    = favicon_link_tag
+    = yield(:head)
+
+  %body
+    %h1
+      Viewing
+      - if params[:completed]
+        = pluralize @jobs.size, "completed job"
+        %h3= link_to "View Job Queue", afterparty_engine.dashboard_path
+      - else
+        = pluralize @jobs.size, "job"
+        %h3= link_to "View Completed Jobs", afterparty_engine.dashboard_path(completed: true)
+    = @queues
+    %table.job-table
+      %thead
+        %tr
+          %th Execute At
+          / %th Job
+          / %th Actions
+      %tbody
+        - if @jobs.empty?
+          %tr
+            %td{colspan: 3}
+              %em No jobs to show...
+        - else
+          - @jobs.each do |job_container|
+            %tr.job-row
+              %td
+                %h3
+                  - if job_container.job
+                    = link_to job_container.job_class, "#", class: 'debug'
+                    - if job_container.job.respond_to? :description
+                      %span.description= job_container.job.description
+                  - else
+                    %em Error marshaling job
+                =# job_container.execute_at.strftime("%B %d, %Y at %l:%M %P")
+                - distance = time_ago_in_words(job_container.execute_at)
+                - if job_container.execute_at > Time.now
+                  %span.distance-future= "in #{distance}"
+                - else
+                  %span.distance-past= "#{distance} ago"
+                - if (_id = job_container.job_id) && (_queue = job_container.queue_name)
+                  %span.job_id== ##{_id} #{_queue}
+                  - unless params[:completed]
+                    = link_to "run", afterparty_engine.run_job_path(job_id: _id, queue: _queue), class: 'job-action'
+                    = link_to "delete", afterparty_engine.delete_job_path(job_id: _id, queue: _queue), class: 'job-action'
+            %tr.debug-row
+              %td
+                - if job_container.job
+                  = debug job_container.job
+                - else
+                  = job_container.raw_string
+
+%p
+  Current Time:
+  = Time.now.strftime("%B %d, %Y at %l:%M %P")

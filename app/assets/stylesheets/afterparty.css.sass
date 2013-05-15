@@ -1,0 +1,85 @@
+body
+  :font-family helvetica
+  :background-color whitesmoke
+  :color lighten(black,30%)
+  :margin 0 20px
+
+a:visited, a
+  :color rgb(96, 89, 180)
+  :text-decoration none
+
+span
+  :font-size 12px
+
+.job-table
+  :border-spacing 0
+  :max-width 100%
+  :margin 0px auto
+  thead tr:first-child
+    th
+      :border-width 1px 1px 1px 0
+      &:first-child
+        :border-width 1px 1px 1px 1px
+    th:first-child
+      :border-top-left-radius 2px
+    th:last-child
+      :border-top-right-radius 2px
+  tbody tr:last-child
+    td:first-child
+      :border-bottom-left-radius 2px
+    td:last-child
+      :border-bottom-right-radius 2px
+  tr
+    td, th
+      :border 1px solid #ccc
+      :border-width 0 1px 1px 0
+      :background-color lighten(whitesmoke, 5%)
+      :padding 12px 5px
+      :text-align left
+      :vertical-align middle
+      :word-wrap break-word
+      &:nth-child(2)
+        :width 70%
+      &:first-child
+        :border-width 0 1px 1px 1px
+      &:first-child, &:last-child
+        :width 15% !important
+    &.debugged
+      td
+        :background-color rgba(255,255,0,0.25)
+    &.job-row
+      :cursor pointer
+      h3
+        :margin 0
+      &:hover
+        td
+          :background-color rgba(0,0,0,0.15)
+        .description
+          :color white
+  .debug-row
+    :display none
+    :max-width 100%
+    td pre
+      :word-wrap break-word
+      :white-space pre-wrap 
+
+.distance-past, .distance-future
+  :font-size 12px
+.distance-future
+  :color darken(rgb(0,255,0), 20%)
+.distance-past
+  :color rgba(255,0,0,0.6)
+
+.description
+  :font-size 12px
+  :color #bbb
+  :margin-left 10px
+
+.job-action
+  :text-decoration underline
+  :font-size 12px
+  :margin 0 2px
+
+.job_id
+  :color #bbb
+  :font-weight 700
