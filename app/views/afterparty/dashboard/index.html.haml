@@ -34,13 +34,14 @@
               %em No jobs to show...
         - else
           - @jobs.each do |job_container|
+            - job = job_container.job
             %tr.job-row
               %td
                 %h3
                   - if job_container.job
                     = link_to job_container.job_class, "#", class: 'debug'
                     - if job_container.job.respond_to? :description
-                      %span.description= job_container.job.description
+                      %span.description= job_container.job.description.html_safe
                   - else
                     %em Error marshaling job
                 =# job_container.execute_at.strftime("%B %d, %Y at %l:%M %P")
