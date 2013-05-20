@@ -16,7 +16,7 @@
     <div class="wrapper">
       <header>
         <h1>Afterparty</h1>
-        <p>A Rails 4 compatible queue with support for executing jobs in the future and persistence with Redis.</p>
+        <p>A Rails 4 compatible queue with support for executing jobs in the future and persistence with ActiveRecord.</p>
 
         <p class="view"><a href="https://github.com/hstove/afterparty">View the Project on GitHub <small>hstove/afterparty</small></a></p>
 
@@ -28,11 +28,13 @@
         </ul>
       </header>
       <section>
-        <p><a href="https://travis-ci.org/hstove/afterparty"><img src="https://travis-ci.org/hstove/afterparty.png?branch=master" alt="Build Status"></a></p>
+        <h1>Afterparty</h1>
+
+<p><a href="https://travis-ci.org/hstove/afterparty"><img src="https://travis-ci.org/hstove/afterparty.png?branch=master" alt="Build Status"></a></p>
+
+<p>A Rails 3 &amp; 4 compatible queue with support for executing jobs in the future and persistence with ActiveRecord.</p>
 
 <h2>Installation</h2>
-
-<p>Make sure you've installed <a href="http://redis.io">redis</a> on your machine.</p>
 
 <p>Add this line to your application's Gemfile:</p>
 
@@ -42,17 +44,12 @@
 <p>And then execute:</p>
 
 <pre><code>$ bundle
+$ rails g afterparty
+$ rake db:migrate
 </code></pre>
 
-<p>Or install it yourself as:</p>
-
-<pre><code>$ gem install afterparty
-</code></pre>
-
-<p>In your desired application environment, like <code>application.rb</code>:</p>
-
-<div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="ss">Afterparty</span><span class="p">:</span><span class="ss">:RedisQueue</span><span class="o">.</span><span class="n">new</span>
-</pre></div>
+<p>This will create an initializer in <code>config/initializers/afterparty.rb</code>. It initializes a queue at
+<code>Rails.configuration.queue</code> for you to pass jobs to.</p>
 
 <h2>Usage</h2>
 
@@ -71,6 +68,54 @@
 </pre></div>
 
 <p>If your job responds to an <code>execute_at</code> method, the queue will wait to process that job until the specified time.</p>
+
+<h3>Running jobs</h3>
+
+<p>You can start a worker in a separate process for executing jobs by calling <code>rake jobs:work</code>.</p>
+
+<h3>Helper jobs</h3>
+
+<p>Afterparty provides helper job wrappers for executing arbitrary methods or mailers.</p>
+
+<div class="highlight"><pre><span class="c1"># pass an object, method, and arguments </span>
+
+<span class="n">mailer_job</span> <span class="o">=</span> <span class="ss">Afterparty</span><span class="p">:</span><span class="ss">:MailerJob</span><span class="o">.</span><span class="n">new</span> <span class="no">UserMailer</span><span class="p">,</span> <span class="ss">:welcome</span><span class="p">,</span> <span class="vi">@user</span>
+<span class="n">mailer_job</span><span class="o">.</span><span class="n">execute_at</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">+</span> <span class="mi">20</span><span class="o">.</span><span class="n">minutes</span>
+<span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">queue</span> <span class="o">&lt;&lt;</span> <span class="n">mailer_job</span>
+
+<span class="n">job</span> <span class="o">=</span> <span class="ss">Afterparty</span><span class="p">:</span><span class="ss">:BasicJob</span><span class="o">.</span><span class="n">new</span> <span class="vi">@user</span><span class="p">,</span> <span class="ss">:reset_password</span>
+<span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">queue</span> <span class="o">&lt;&lt;</span> <span class="n">job</span>
+</pre></div>
+
+<h3>Dashboard</h3>
+
+<p><img src="https://raw.github.com/hstove/afterparty/master/docs/dashboard.png" alt="dashboard screenshot"></p>
+
+<p>This gem provides a handy dashboard for inspecting, debugging, and re-running jobs.</p>
+
+<p>Visit <a href="http://localhost:3000/afterparty/">http://localhost:3000/afterparty/</a> and login with
+<code>admin</code> and <code>password</code>. You can change the authentication strategy in <code>config/initializers/afterparty.rb</code> to something like this:</p>
+
+<div class="highlight"><pre><span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">config_login</span> <span class="k">do</span> <span class="o">|</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">|</span>
+  <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+  <span class="o">!</span><span class="n">user</span><span class="o">.</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">is_admin?</span>
+<span class="k">end</span>
+</pre></div>
+
+<h3>Unicorn configuration</h3>
+
+<p>If you're using Unicorn as your application server, you can run a worker thread asynchronously by adding a few lines to your <code>unicorn.rb</code>:</p>
+
+<div class="highlight"><pre>
+<span class="vi">@jobs_pid</span> <span class="o">=</span> <span class="kp">nil</span>
+
+<span class="n">before_fork</span> <span class="k">do</span> <span class="o">|</span><span class="n">server</span><span class="p">,</span> <span class="n">worker</span><span class="o">|</span>
+  <span class="vi">@jobs_pid</span> <span class="o">||=</span> <span class="n">spawn</span><span class="p">(</span><span class="s2">"bundle exec rake jobs:work"</span><span class="p">)</span>
+
+  <span class="c1"># ... the rest of your configuration</span>
+</pre></div>
+
+<p>This has the advantage of, for example, staying within Heroku's free tier by not running a worker dyno.</p>
 
 <h2>Contributing</h2>
 
