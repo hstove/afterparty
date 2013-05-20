@@ -1,11 +1,11 @@
 require 'spec_helper'
-describe Afterparty::RedisQueue do
+describe Afterparty::Queue do
   before do
-    require 'open-uri'
-    uri = URI.parse("redis://localhost:6379")
-    redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
-    Afterparty.redis = redis
-    @q = Afterparty::TestRedisQueue.new({sleep: 0.5})
+    # require 'open-uri'
+    # uri = URI.parse("redis://localhost:6379")
+    # redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
+    # Afterparty.redis = redis
+    @q = Afterparty::TestQueue.new({sleep: 0.5, namespace: "master_test"})
   end
 
   after do
@@ -14,10 +14,10 @@ describe Afterparty::RedisQueue do
 
   before :each do
     @worker = Afterparty::Worker.new({sleep: 0.5})
-    @worker.consume
+    # @worker.consume
     @q.clear
-    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 3).to_i
-    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 10).to_i
+    @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 5).to_i
+    @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 7).to_i
   end
 
   it "pushes nil without errors" do
@@ -26,21 +26,24 @@ describe Afterparty::RedisQueue do
   end
 
   it "adds items to the queue" do
-    @q.push(test_job)
-    @q.total_jobs_count.should eq(1)
+    lambda {
+      @q.push(test_job)
+    }.should change{ @q.total_jobs_count }.by(1)
   end
 
   it "executes the job" do
     job = TestJob.new
     @q.push(job)
-    @q.jobs.size.should eq(1)
-    chill(@job_time)
-    @q.jobs.size.should eq(0)
+    lambda {
+      sleep(1)
+      @worker.consume_next
+    }.should change{ @q.total_jobs_count }.by(-1)
   end
 
   it "removes items from the queue after running them" do
     @q.push TestJob.new
-    chill(@job_time)
+    sleep(1)
+    @worker.consume_next
     @q.jobs.size.should == 0
   end
 
@@ -48,16 +51,20 @@ describe Afterparty::RedisQueue do
     job = TestJob.new
     job.execute_at = Time.now + 200
     @q.push job
-    chill(@job_time)
-    @q.jobs.size.should eq(1)
+    lambda {
+      @worker.consume_next
+    }.should change{ @q.total_jobs_count }.by(0)
+    # @q.jobs.size.should eq(1)
   end
 
   it "waits the correct amount of time to execute a job" do
     job = TestJob.new
-    job.execute_at = Time.now + 5
+    job.execute_at = Time.now + 4
     @q.push(job)
+    sleep(1)
     @q.jobs.size.should eq(1)
     chill(@slow_job_time)
+    @worker.consume_next
     @q.jobs.size.should eq(0)
   end
 
@@ -73,7 +80,8 @@ describe Afterparty::RedisQueue do
     early_job = test_job
     @q.push(late_job)
     @q.push(early_job)
-    chill(@job_time)
+    sleep(1)
+    @worker.consume_next
     (jobs = @q.jobs).size.should eq(1)
     jobs[0].execute_at.should_not be(nil)
   end
@@ -92,7 +100,7 @@ describe Afterparty::RedisQueue do
 
   def error_job later=nil
     job = ErrorJob.new
-    job.execute_at = Time.now + later if later
+    job.execute_at = DateTime.now + later if later
     job
   end
 

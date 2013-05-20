@@ -2,11 +2,9 @@
 
 [![Build Status](https://travis-ci.org/hstove/afterparty.png?branch=master)](https://travis-ci.org/hstove/afterparty)
 
-A Rails 4 compatible queue with support for executing jobs in the future and persistence with Redis.
+A Rails 3 & 4 compatible queue with support for executing jobs in the future and persistence with ActiveRecord.
 
 ## Installation
-
-Make sure you've installed [redis](http://redis.io) on your machine.
 
 Add this line to your application's Gemfile:
 
@@ -17,16 +15,11 @@ gem 'afterparty'
 And then execute:
 
     $ bundle
+    $ rails g afterparty
+    $ rake db:migrate
 
-Or install it yourself as:
-
-    $ gem install afterparty
-
-In your desired application environment, like `application.rb`:
-
-~~~Ruby
-config.queue = Afterparty::RedisQueue.new
-~~~
+This will create an initializer in `config/initializers/afterparty.rb`. It initializes a queue at
+`Rails.configuration.queue` for you to pass jobs to.
 
 ## Usage
 
@@ -47,6 +40,55 @@ Rails.configuration.queue << Job.new
 ~~~
 
 If your job responds to an `execute_at` method, the queue will wait to process that job until the specified time.
+
+### Running jobs
+
+You can start a worker in a separate process for executing jobs by calling `rake jobs:work`.
+
+### Helper jobs
+
+Afterparty provides helper job wrappers for executing arbitrary methods or mailers.
+
+~~~Ruby
+# pass an object, method, and arguments 
+
+mailer_job = Afterparty::MailerJob.new UserMailer, :welcome, @user
+mailer_job.execute_at = Time.now + 20.minutes
+Rails.configuration.queue << mailer_job
+
+job = Afterparty::BasicJob.new @user, :reset_password
+Rails.configuration.queue << mailer_job
+~~~
+
+### Dashboard
+
+This gem provides a handy dashboard for inspecting, debugging, and re-running jobs.
+
+Visit [http://localhost:3000/afterparty/](http://localhost:3000/afterparty/) and login with
+`admin` and `password`. You can change the authentication strategy in `config/initializers/afterparty.rb` to something like this:
+
+~~~Ruby
+Rails.configuration.queue.config_login do |username, password|
+  user = User.authenticate(username, password)
+  !user.nil? && user.is_admin?
+end
+~~~
+
+### Unicorn configuration
+
+If you're using Unicorn as your application server, you can run a worker thread asynchronously by adding a few lines to your `unicorn.rb`:
+
+~~~Ruby
+
+@jobs_pid = nil
+
+before_fork do |server, worker|
+  @jobs_pid ||= spawn("bundle exec rake jobs:work")
+
+  # ... the rest of your configuration
+~~~
+
+This has the advantage of, for example, staying within Heroku's free tier by not running a worker dyno.
 
 ## Contributing
 

@@ -20,13 +20,12 @@
       - else
         = pluralize @jobs.size, "job"
         %h3= link_to "View Completed Jobs", afterparty_engine.dashboard_path(completed: true)
-    = @queues
+    - if notice
+      %p.notice= notice
     %table.job-table
       %thead
         %tr
           %th Execute At
-          / %th Job
-          / %th Actions
       %tbody
         - if @jobs.empty?
           %tr
@@ -34,33 +33,52 @@
               %em No jobs to show...
         - else
           - @jobs.each do |job_container|
-            - job = job_container.job
+            - job = job_container.reify
             %tr.job-row
               %td
                 %h3
-                  - if job_container.job
-                    = link_to job_container.job_class, "#", class: 'debug'
-                    - if job_container.job.respond_to? :description
-                      %span.description= job_container.job.description.html_safe
+                  - if job
+                    = link_to job.class.to_s, "#", class: 'debug'
+                    - if job.respond_to? :description
+                      %span.description= job.description.html_safe
+                  - elsif job_container.has_error
+                    %sp.error-description= job_container.error_message
                   - else
                     %em Error marshaling job
-                =# job_container.execute_at.strftime("%B %d, %Y at %l:%M %P")
-                - distance = time_ago_in_words(job_container.execute_at)
-                - if job_container.execute_at > Time.now
-                  %span.distance-future= "in #{distance}"
+                - if job_container.completed_at
+                  %span.distance-future= "Completed #{time_ago_in_words(job_container.completed_at)} ago"
                 - else
-                  %span.distance-past= "#{distance} ago"
-                - if (_id = job_container.job_id) && (_queue = job_container.queue_name)
-                  %span.job_id== ##{_id} #{_queue}
-                  - unless params[:completed]
-                    = link_to "run", afterparty_engine.run_job_path(job_id: _id, queue: _queue), class: 'job-action'
-                    = link_to "delete", afterparty_engine.delete_job_path(job_id: _id, queue: _queue), class: 'job-action'
+                  - distance = time_ago_in_words(job_container.execute_at)
+                  - if job_container.execute_at > Time.now
+                    %span.distance-future= "Scheduled to execute in #{distance}"
+                  - else
+                    %span.distance-past= "Scheduled to execute #{distance} ago"
+                %span.job_id== ##{job_container.id} #{job_container.queue}
+                - if params[:completed]
+                  = link_to "run again", afterparty_engine.run_job_path(id: job_container.id), class: 'job-action'
+                - else
+                  = link_to "run", afterparty_engine.run_job_path(id: job_container.id), class: 'job-action'
+                  = link_to "delete", afterparty_engine.destroy_job_path(id: job_container.id), class: 'job-action'
             %tr.debug-row
               %td
-                - if job_container.job
-                  = debug job_container.job
+                - if job
+                  = debug job
                 - else
-                  = job_container.raw_string
+                  %p
+                    %strong YAML dump:
+                    = job_container.job_dump
+                - if job_container.has_error
+                  %p
+                    %strong Error Message:
+                    = job_container.error_message
+                  - if job_container.error_backtrace
+                    %p
+                      %strong Error Backtrace:
+                      = job_container.error_backtrace.gsub("\n","<br>")
+                - if job_container.completed_at
+                  %p
+                    %strong Completed At:
+                    = job_container.completed_at.strftime("%B %d, %Y at %l:%I %P")
 
 %p
   Current Time:

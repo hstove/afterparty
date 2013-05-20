@@ -7,15 +7,15 @@ namespace :jobs do
     worker.consume_sync
   end
 
-  desc "Clear all jobs"
-  task clear: :environment do
-    Rails.configuration.queue.clear
-  end
+  # desc "Clear all jobs"
+  # task clear: :environment do
+  #   Rails.configuration.queue.clear
+  # end
 
   desc "List Jobs"
   task list: :environment do
-    jobs = Rails.configuration.queue.jobs_with_scores
-    puts "#{jobs.values.size} total jobs."
+    jobs = Rails.configuration.queue.jobs
+    puts "#{jobs.size} total jobs."
     jobs.each do |time, job|
       puts time
       puts job

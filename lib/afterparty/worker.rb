@@ -20,15 +20,17 @@ module Afterparty
       @thread
     end
 
+    def consume_next
+      if (job = next_valid_job)
+        run job
+      end
+    end
+
     def consume_sync
       while !@stopped
         job = next_valid_job
         if job
-          async_redis_call do
-            @temp_namespace = "completed"
-            redis_call :zadd, Time.now.to_i, Marshal.dump(job)
-            redis_call :zrem, job
-          end
+          puts "Executing job: #{job.id}"
           run job
         else
           sleep(@options[:sleep])
@@ -38,19 +40,7 @@ module Afterparty
 
     def stop
       @stopped = true
-      @thread.join(0)
-    end
-
-    def run(job)
-      fork do
-        Marshal.load(job).run
-      end
-    rescue Exception => exception
-      handle_exception job, exception
-    end
-
-    def handle_exception(job, exception)
-      @options[:logger].error "Job Error: #{job.inspect}\n#{exception.message}\n#{exception.backtrace.join("\n")}"
+      @thread.join(0) if @thread
     end
   end
 end

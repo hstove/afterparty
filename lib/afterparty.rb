@@ -1,20 +1,10 @@
 require 'logger'
 require 'afterparty/queue_helpers'
-require 'afterparty/redis_queue'
-require 'redis'
+require 'yaml'
 Dir[File.expand_path('../afterparty/*', __FILE__)].each { |f| require f }
 
 
 module Afterparty
-  @@redis = Redis.new
-
-  def self.redis
-    @@redis
-  end
-  def self.redis=(redis)
-    @@redis = redis
-  end
-
   def self.clear namespace=:default
     redis_call namespace, :del
   end
@@ -28,34 +18,42 @@ module Afterparty
   end
 
   def self.queues
-    @@redis.smembers "afterparty_queues"
+    # @@redis.smembers "afterparty_queues"
   end
 
-  def self.add_queue name
-    @@redis.sadd "afterparty_queues", name
+  # return timestamp of :execute_at or current time
+  def self.queue_time job
+    time = job_valid?(job) ? job.execute_at : DateTime.now
   end
 
-  def self.next_job_id namespace=:default
-    @@redis.incr "afterparty_#{namespace.to_s}_job_id"
+  # returns true if job has an :execute_at value
+  def self.job_valid? job
+    job.respond_to?(:execute_at) && !job.execute_at.nil?
   end
-
+  
   def self.load(raw)
     begin
+      # postgres converts it to utf-8
+      # raw.encode!("ascii")
       begin
-        job = Marshal.load(raw)
-        job = Marshal.load(job) if String === job
-        return job
-      rescue NameError => e
-        # lots of marshal load errors are because something that hasn't been
+        # job = Marshal.load(raw)
+        # job = Marshal.load(job) if String === job
+        return YAML.load(raw)
+      rescue ArgumentError => e
+        # lots of yaml load errors are because something that hasn't been
         # required. recursively require on these errors
-        name = e.message.gsub("uninitialized constant ","").downcase
-        begin
-          require "#{name}"
-          return load(raw)
-        rescue LoadError
+        # Invoke the autoloader and try again if object's class is undefined
+        if e.message =~ /undefined class\/module (.*)$/
+          # puts "autoloading #{$1}"
+          $1.constantize rescue return nil
         end
+        return load(raw)
       end
-    rescue
+    rescue Exception => e
+      puts e
+      puts "Exception while unmarshaling a job:"
+      puts e.message
+      puts e.backtrace
       return nil
     end
   end
