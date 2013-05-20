@@ -57,10 +57,12 @@ mailer_job.execute_at = Time.now + 20.minutes
 Rails.configuration.queue << mailer_job
 
 job = Afterparty::BasicJob.new @user, :reset_password
-Rails.configuration.queue << mailer_job
+Rails.configuration.queue << job
 ~~~
 
 ### Dashboard
+
+![dashboard screenshot](https://github.com/hstove/afterparty/blob/master/docs/dashboard.png)
 
 This gem provides a handy dashboard for inspecting, debugging, and re-running jobs.
 
