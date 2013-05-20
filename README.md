@@ -62,7 +62,7 @@ Rails.configuration.queue << job
 
 ### Dashboard
 
-![dashboard screenshot](https://github.com/hstove/afterparty/blob/master/docs/dashboard.png)
+![dashboard screenshot](https://raw.github.com/hstove/afterparty/master/docs/dashboard.png)
 
 This gem provides a handy dashboard for inspecting, debugging, and re-running jobs.
 
