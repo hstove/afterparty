@@ -11,7 +11,7 @@ describe AfterpartyJob do
     job.reload
     (reloaded = job.reify).class.should == tester.class
     reloaded.execute_at.utc.to_i.should == tester.execute_at.utc.to_i
-    job.execute_at.should == reloaded.execute_at
+    job.execute_at.utc.to_i.should == reloaded.execute_at.utc.to_i
   end
 
 end
