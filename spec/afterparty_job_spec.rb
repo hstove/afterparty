@@ -10,7 +10,7 @@ describe AfterpartyJob do
     job = AfterpartyJob.make_with_job tester
     job.reload
     (reloaded = job.reify).class.should == tester.class
-    reloaded.execute_at.should == tester.execute_at
+    reloaded.execute_at.utc.should == tester.execute_at.utc
     job.execute_at.should == reloaded.execute_at
   end
 
