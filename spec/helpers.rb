@@ -16,7 +16,7 @@ module Afterparty
 end
 
 class TestJob
-  attr_accessor :execute_at
+  attr_accessor :execute_at, :name
 
   def initialize &block
     @block = block

@@ -1,11 +1,7 @@
 require 'spec_helper'
 describe Afterparty::Queue do
   before do
-    # require 'open-uri'
-    # uri = URI.parse("redis://localhost:6379")
-    # redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
-    # Afterparty.redis = redis
-    @q = Afterparty::TestQueue.new({sleep: 0.5, namespace: "master_test"})
+    @q = Afterparty::Queue.new({sleep: 0.5})
   end
 
   after do
@@ -14,7 +10,6 @@ describe Afterparty::Queue do
 
   before :each do
     @worker = Afterparty::Worker.new({sleep: 0.5})
-    # @worker.consume
     @q.clear
     @job_time = (ENV['AFTERPARTY_JOB_TIME'] || 5).to_i
     @slow_job_time = (ENV['AFTERPARTY_SLOW_TIME'] || 7).to_i
@@ -54,7 +49,6 @@ describe Afterparty::Queue do
     lambda {
       @worker.consume_next
     }.should change{ @q.total_jobs_count }.by(0)
-    # @q.jobs.size.should eq(1)
   end
 
   it "waits the correct amount of time to execute a job" do

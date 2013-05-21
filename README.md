@@ -92,6 +92,10 @@ before_fork do |server, worker|
 
 This has the advantage of, for example, staying within Heroku's free tier by not running a worker dyno.
 
+## TODO
+
+* Finish namespacing support by adding documentation and allowing a worker rake task to pull jobs from a custom (or all) queues.
+
 ## Contributing
 
 1. Fork it

@@ -5,6 +5,7 @@ class AfterpartyJob < ::ActiveRecord::Base
 
   validates_presence_of :job_dump, :execute_at, :queue
 
+  scope :namespaced, lambda { |name| where(queue: name) }
   scope :incomplete, -> { where(completed: false).order("execute_at") }
   scope :valid, -> { incomplete.where(execute_at: 10.years.ago..DateTime.now) }
   scope :completed, -> { where(completed: true).order("execute_at desc") }
@@ -28,4 +29,13 @@ class AfterpartyJob < ::ActiveRecord::Base
       j.run
     end
   end
+
+  # def self.namespaced name
+  #   where(queue: name)
+  # end
+
+  # def namespaced name
+  #   where(queue: name)
+  # end
+
 end

@@ -1,36 +1,25 @@
 module Afterparty
   module QueueHelpers
+
+    def initialize options = {}
+      @options = options
+      @options[:namespace] ||= :default
+      @options[:sleep] ||= 10
+      @options[:logger] ||= Logger.new($stderr)
+      self
+    end
+
     def [] namespace
       @temp_namespace = namespace
     end
 
-    def redis_queue_name  
-      puts (a = Afterparty.redis_queue_name(@temp_namespace || @options[:namespace]))
-      a
-    end
-
     def clear
       # redis_call :del
-      AfterpartyJob.destroy_all
-    end
-
-    def redis_call command, *args
-      result = Afterparty.redis_call (@temp_namespace || @options[:namespace]), command, *args
-      @temp_namespace = nil
-      result
-    end
-
-    def async_redis_call &block
-      Afterparty.redis.pipelined &block
+      AfterpartyJob.namespaced(@options[:namespace]).destroy_all
     end
 
     def jobs
-      # _jobs = redis_call(:zrange, 0, -1)
-      # _jobs.each_with_index do |job, i|
-      #   _jobs[i] = Marshal.load(job)
-      # end
-      # _jobs
-      AfterpartyJob.incomplete
+      AfterpartyJob.namespaced(@options[:namespace]).incomplete
     end
 
     def jobs_with_scores
@@ -38,41 +27,27 @@ module Afterparty
     end
 
     def valid_jobs
-      # redis_call :zrangebyscore, 0, Time.now.to_i
-      AfterpartyJob.valid
+      AfterpartyJob.namespaced(@options[:namespace]).valid
     end
 
     def next_valid_job
-      # valid_jobs.first
-      AfterpartyJob.valid.first
+      AfterpartyJob.namespaced(@options[:namespace]).valid.first
     end
 
     def jobs_empty?
-      # count = total_jobs_count
-      # # ap count
-      # count == 0
-      AfterpartyJob.valid.empty?
+      AfterpartyJob.namespaced(@options[:namespace]).valid.empty?
     end
 
     def total_jobs_count
-      # redis_call(:zcount, "-inf", "+inf")
-      AfterpartyJob.incomplete.count
-    end
-
-    def redis
-      @@redis
+      AfterpartyJob.namespaced(@options[:namespace]).incomplete.count
     end
 
     def last_completed
-      # @temp_namespace = "completed"
-      # redis_call(:zrange, -1, -1).first
-      AfterpartyJob.completed.first
+      AfterpartyJob.namespaced(@options[:namespace]).completed.first
     end
 
     def completed
-      # @temp_namespace = "completed"
-      # redis_call(:zrange, -20, -1).reverse
-      AfterpartyJob.completed
+      AfterpartyJob.namespaced(@options[:namespace]).completed
     end
 
     def completed_with_scores
@@ -120,14 +95,6 @@ module Afterparty
 
 
     private
-
-    def hash_from_scores raw
-      arr = []
-      raw.each do |group|
-        arr << Afterparty::JobContainer.new(group[0], group[1])
-      end
-      arr
-    end
 
     # returns true if job has an :execute_at value
     def job_valid? job

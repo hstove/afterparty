@@ -2,15 +2,6 @@ module Afterparty
   class Worker
     include QueueHelpers
 
-    def initialize options = {}
-      @options = options
-      @options[:adapter] ||= :redis
-      @options[:namespace] ||= :default
-      @options[:sleep] ||= 10
-      @options[:logger] ||= Logger.new($stderr)
-      self
-    end
-
     def consume
       @stopped = false
       # puts "starting worker with namespace [#{@options[:namespace]}]."
