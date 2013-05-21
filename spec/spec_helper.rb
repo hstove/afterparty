@@ -5,6 +5,7 @@ require 'redis'
 require 'afterparty' # and any other gems you need
 require 'helpers'
 require 'genspec'
+require 'fileutils'
 
 RSpec.configure do |config|
   # some (optional) config here
