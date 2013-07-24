@@ -3,7 +3,7 @@ module Afterparty
     attr_accessor :execute_at, :mail, :clazz, :method, :args
     def initialize clazz, method, *args
       # @mail = UserMailer.welcome_email(User.find(1))
-      @clazz = UserMailer
+      @clazz = clazz
       @method = method
       @args = args
     end
