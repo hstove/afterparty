@@ -29,7 +29,7 @@ module Afterparty
     end
 
     def run
-      @object.send(:method, *@args)
+      @object.send(@method, *@args)
     end
 
     def description
