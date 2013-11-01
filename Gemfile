@@ -11,3 +11,4 @@ gem 'redis'
 gem 'sqlite3'
 gem 'genspec'
 gem 'fileutils'
+gem 'coveralls', require: false

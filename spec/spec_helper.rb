@@ -7,6 +7,9 @@ require 'helpers'
 require 'genspec'
 require 'fileutils'
 
+require 'coveralls'
+Coveralls.wear!
+
 RSpec.configure do |config|
   # some (optional) config here
   config.include Afterparty::QueueTestHelpers
