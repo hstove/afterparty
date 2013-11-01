@@ -46,4 +46,16 @@ describe Afterparty::Queue do
     (inner = wrapper.reify).name.should == "testy"
     wrapper.queue.should == "tester"
   end
+
+  it "should sleep if no jobs are valid on #pop" do
+    sleep_called = false
+    job = nil
+    @q.clear
+    @q.stub(:sleep) {
+      sleep_called = true
+      job = AfterpartyJob.make_with_job test_job
+    }
+    @q.pop
+    sleep_called.should be_true
+  end
 end

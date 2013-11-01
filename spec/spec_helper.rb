@@ -1,3 +1,14 @@
+require 'simplecov'
+require 'coveralls'
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+  add_filter "/spec/"
+end
+
 require 'rubygems'
 require 'bundler/setup'
 require 'awesome_print'
@@ -6,15 +17,6 @@ require 'afterparty' # and any other gems you need
 require 'helpers'
 require 'genspec'
 require 'fileutils'
-
-require 'simplecov'
-require 'coveralls'
-
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-  SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter
-]
-SimpleCov.start
 
 RSpec.configure do |config|
   # some (optional) config here

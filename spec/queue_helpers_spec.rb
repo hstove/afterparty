@@ -53,4 +53,39 @@ describe Afterparty::QueueHelpers do
     @q.authenticate("userbad","pass").should == false
     @q.authenticate("user","passbad").should == false
   end
+
+  it "saves errors if a job can't reify" do
+    job = AfterpartyJob.make_with_job test_job
+    job.stub(:reify) { nil }
+    @q.run job
+    job.has_error.should be_true
+    job.error_message.should eq("Error marshaling job.")
+  end
+
+  it "handles exceptions when running a job" do
+    job = AfterpartyJob.make_with_job test_job
+    job.stub(:reify).and_raise(Exception, "message")
+    @q.should_receive(:handle_exception)
+    @q.run job
+  end
+
+  it "saves error data about a job when handling exceptions" do
+    job = AfterpartyJob.make_with_job test_job
+    job.stub(:reify).and_raise(Exception, "message")
+    @q.options[:logger].should_receive(:error)
+    @q.run job
+    job.completed.should be_true
+    job.completed_at.should be < DateTime.now
+    job.has_error.should be_true
+    job.error_message.should eq("message")
+    job.error_backtrace.should_not be_nil
+  end
+
+  it "returns the last completed job" do
+    job = AfterpartyJob.make_with_job test_job
+    job.completed = true
+    job.save
+    @q.last_completed.should eq(job)
+    @q.completed.should eq([job])
+  end
 end

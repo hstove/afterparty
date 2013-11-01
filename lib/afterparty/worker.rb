@@ -4,7 +4,6 @@ module Afterparty
 
     def consume
       @stopped = false
-      # puts "starting worker with namespace [#{@options[:namespace]}]."
       @thread = Thread.new {
         consume_sync
       }
@@ -21,7 +20,7 @@ module Afterparty
       while !@stopped
         job = next_valid_job
         if job
-          puts "Executing job: #{job.id}"
+          puts "Executing job: #{job.id}" if job.respond_to? :id
           run job
         else
           sleep(@options[:sleep])

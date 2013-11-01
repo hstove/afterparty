@@ -1,7 +1,7 @@
 module Afterparty
 
   module JobDescribers
-    attr_accessor :clazz, :method, :args, :execute_at
+    attr_accessor :object, :method, :args, :execute_at
 
     def initialize object, method, *args
       @object = object
@@ -10,7 +10,7 @@ module Afterparty
     end
 
     def description
-      desc = "Mailer: #{(@object || "nil")}."
+      desc = "Object: #{(@object || "nil")}."
       desc << "Method: #{(@method || "nil")}."
       desc << "Args: #{(@args || "nil")}"
     end
