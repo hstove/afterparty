@@ -7,8 +7,14 @@ require 'helpers'
 require 'genspec'
 require 'fileutils'
 
+require 'simplecov'
 require 'coveralls'
-Coveralls.wear!
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start
 
 RSpec.configure do |config|
   # some (optional) config here
