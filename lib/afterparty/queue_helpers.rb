@@ -6,7 +6,7 @@ module Afterparty
       @options = options
       @options[:namespace] ||= :default
       @options[:sleep] ||= 10
-      @options[:logger] ||= Logger.new($stderr)
+      @options[:logger] ||= Logger.new(STDOUT)
       self
     end
 
@@ -66,7 +66,7 @@ module Afterparty
       job.save
       logger_message = "Job Error: #{job.inspect}\n#{exception.message}"
       logger_message << "\n#{exception.backtrace.join("\n")}"
-      @options[:logger].error logger_message
+      logger.error logger_message
     end
 
     # &block takes a 'username' and 'password'
@@ -78,6 +78,10 @@ module Afterparty
     def authenticate username, password
       raise 'Must set queue.config_login to use dashboard' if @login_block.nil?
       @login_block.call(username, password)
+    end
+
+    def logger
+      @options[:logger]
     end
   end
 end
