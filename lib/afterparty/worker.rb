@@ -41,7 +41,7 @@ module Afterparty
     def log_time_metrics old_time
       time_elapsed = Time.now - old_time
       jobs_per_s = 1.0 / time_elapsed
-      logger.info " #{time_elapsed.round(2)} seconds. #{jobs_per_s} jobs/s."
+      logger.info "#{time_elapsed.round(2)} seconds. #{jobs_per_s} jobs/s."
     end
   end
 end
