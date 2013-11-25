@@ -5,11 +5,10 @@ module Afterparty
     before_filter :find_job, only: [:run, :destroy, :run_again]
 
     def index
-      @queues = Afterparty.queues
       if params[:completed]
         @jobs = AfterpartyJob.completed.limit(20)
       else
-        @jobs = queue.jobs
+        @jobs = queue.jobs.limit(20)
       end
     end
 

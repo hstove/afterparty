@@ -5,7 +5,6 @@ module Afterparty
   class JobContainer
     attr_accessor :job, :raw, :execute_at, :job_id, :queue_name
 
-    #intialized from redis's WITHSCORES function
     def initialize _raw, timestamp
       @execute_at = Time.at(timestamp)
       begin
