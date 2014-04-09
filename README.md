@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hstove/afterparty.png?branch=master)](https://travis-ci.org/hstove/afterparty)
 [![Code Climate](https://codeclimate.com/github/hstove/afterparty.png)](https://codeclimate.com/github/hstove/afterparty)
-[![Coverage Status](https://coveralls.io/repos/hstove/afterparty/badge.png)](https://coveralls.io/r/hstove/afterparty)
+[![Coverage Status](https://coveralls.io/repos/hstove/afterparty/badge.png?branch=master)](https://coveralls.io/r/hstove/afterparty?branch=master)
 
 A Rails 3 & 4 compatible queue with support for executing jobs in the future and persistence with ActiveRecord.
 
